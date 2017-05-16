@@ -23,7 +23,7 @@ import (
 	"strings"
 	"log"
 	"container/list"
-	"github.com/fspirgi/dirwalk"
+	"github.com/fspirgi/engine/dirwalk"
 	"path/filepath"
 	"os/exec"
 	"fmt"

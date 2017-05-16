@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"github.com/fspirgi/frcfile"
-	"github.com/fspirgi/dirwalk"
-	"github.com/fspirgi/exectree"
+	"github.com/fspirgi/engine/frcfile"
+	"github.com/fspirgi/engine/dirwalk"
+	"github.com/fspirgi/engine/exectree"
 	"log"
 )
 
