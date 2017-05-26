@@ -24,4 +24,15 @@ The rest of the numbers are executed sequentially, A0002 after A0001 after A0000
 
 To find files, subdirectories will be considered
 
+CONFIGURATION FILES
 
+For each part of the filename a corresponding configuration file is searched for in the whole tree above the directory. For example a executed file named /a/b/A0001_gugus configuration files Arc, A0rc, A00rc, A0001rc will be searched in all directories called etc in the path, e.g. /a/etc, /a/b/etc.
+
+Configuration entries are in the form key = value, you can use keys as variables and extract their values with $. E.g.
+
+a = b c
+d = c $a f # d will be "c b c f"
+
+Parts after # will be treated as comments and empty lines ignored.
+
+Every value is pushed into the environment and available to the called programs or scripts.
