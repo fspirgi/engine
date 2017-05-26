@@ -60,7 +60,6 @@ func FindExecFiles(dir string) (*list.List,error) {
 // go to next element if all processes executed sucessfully, fail otherwise at the end of each top level element
 //
 // update 26. november: make all lists, two parallel flags x and y [A-Z]xy[0-9]{2}
-
 func FindAndOrderExecFiles(dir string) (*list.List,error) {
 	// resulting list
 	rlist := list.New()
@@ -136,7 +135,6 @@ func DisplayExecTree (tree *list.List ) {
 // function that finds all files named x in dir y UP the tree, e.g. /a/b/c/d/etc/x, /a/b/c/etc/x ...
 // order should be top down afterwards
 // func FindUp(startdir string, finddir string, findfile string) (*list.List,error)
-
 func FindUp(startdir string, finddir string, findfile string) (*list.List,error) {
 	dirs,err := FindUpDir(startdir,finddir)
 	rcs := list.New()

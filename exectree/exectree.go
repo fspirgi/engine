@@ -11,7 +11,6 @@ import (
 
 // esl execute (see esl list in dirwalk)
 // esl contains pathnames of files to execute sequentially
-
 func executeFiles(files *list.List) error {
 	var rerr error
 	var status string
@@ -35,7 +34,6 @@ func executeFiles(files *list.List) error {
 
 // elist execute (see elist in dirwalk)
 // elist contains esl element to be executed in parallel
-
 func executePar(elist *list.List) error {
 	var rerr error
 	channels := make([]chan bool,0,0)
@@ -63,7 +61,6 @@ func executePar(elist *list.List) error {
 // rlist execute
 // just execute one after the other...
 // stop on error
-
 func ExecuteToplevel(rlist *list.List)  {
 	log.Println("PROCESSING STARTED")
 	for elist := rlist.Front(); elist != nil; elist = elist.Next() {
