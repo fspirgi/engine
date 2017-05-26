@@ -9,6 +9,19 @@ engine path
 
 DESCRIPTION
 
-engine will look for files in the path 
+Engine will look for files in the path give for files with naming scheme [A-Z][0-9][0-9]{3}_.* and executes them in a certain order.
+
+EXECUTION ORDER
+
+[A-Z]
+The first part is the stream. All groups with a given stream are executed sequentially in alphabethical order.
+
+First Number
+The parallel flag. All files with different numbers will be executed in parallel within the stream. E.g. A0001 and A1001 will be executed in parallel.
+
+Rest of numbers
+The rest of the numbers are executed sequentially, A0002 after A0001 after A0000
+
+To find files, subdirectories will be considered
 
 
