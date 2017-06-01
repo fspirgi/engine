@@ -34,11 +34,11 @@ func executeFiles(files *list.List) error {
 
 // elist execute (see elist in dirwalk)
 // elist contains esl element to be executed in parallel
+// !!! RACE condition, slice is not thread save
 func executePar(elist *list.List) error {
 	var rerr error
 	channels := make([]chan bool, 0, 0)
 	ccnt := 0
-
 	for esl := elist.Front(); esl != nil; esl = esl.Next() {
 		channels = append(channels, make(chan bool, 1))
 		go func(tesl *list.List, ret chan bool) {
@@ -48,8 +48,8 @@ func executePar(elist *list.List) error {
 			}
 			ret <- true
 		}(esl.Value.(*list.List), channels[ccnt])
-		ccnt++
 	}
+	ccnt++
 	// this just waits for the first then the second etc, it doesn't care about which could be faster
 	// this is probably a poor mans implementation
 	// of course it works. This should probably be done with a wait group, but, after all, this is doing about the same...

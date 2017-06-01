@@ -104,6 +104,7 @@ func ReadRc(path string) (map[string]string, error) {
 
 // func ReadAll(*list.List) (map[string]string,error)
 // reads every rcfile in list and returns a map containing all entries
+// !!! RACE condition, maps are not thread safe
 func ReadAll(rclist *list.List) (map[string]string, error) {
 	result := make(map[string]string)
 	var nok error
