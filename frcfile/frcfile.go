@@ -27,12 +27,25 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/fspirgi/engine/dirwalk"
 )
 
 // package variable: alread read rc files
-var arrcs = make(map[string]bool)
+type rrcf struct {
+	rcfile map[string]bool
+	sync.Mutex
+}
+
+func newRrcf() (retval *rrcf) {
+	retval = new(rrcf)
+	retval.rcfile = make(map[string]bool)
+	return
+}
+
+// var arrcs = make(map[string]bool)
+var arrcs = newRrcf()
 
 // ReadRc(path string) (map[string]string,error)
 // Reads an rc file and return a key/value map or error
@@ -104,7 +117,6 @@ func ReadRc(path string) (map[string]string, error) {
 
 // func ReadAll(*list.List) (map[string]string,error)
 // reads every rcfile in list and returns a map containing all entries
-// !!! RACE condition, maps are not thread safe
 func ReadAll(rclist *list.List) (map[string]string, error) {
 	result := make(map[string]string)
 	var nok error
@@ -112,7 +124,8 @@ func ReadAll(rclist *list.List) (map[string]string, error) {
 	// test whether we have already read the file
 
 	for elem := rclist.Front(); elem != nil; elem = elem.Next() {
-		if arrcs[elem.Value.(string)] {
+		if arrcs.Lock(); arrcs.rcfile[elem.Value.(string)] {
+			arrcs.Unlock()
 			continue
 		} else {
 			if rcvals, err := ReadRc(elem.Value.(string)); err == nil {
@@ -122,7 +135,8 @@ func ReadAll(rclist *list.List) (map[string]string, error) {
 					result[key] = val
 				}
 			}
-			arrcs[elem.Value.(string)] = true
+			arrcs.rcfile[elem.Value.(string)] = true
+			arrcs.Unlock()
 		}
 	}
 	return result, nok
