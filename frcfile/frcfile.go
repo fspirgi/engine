@@ -163,6 +163,10 @@ func FindAndRead(startdir, finddir, findfile string) (map[string]string, error) 
 func FindAndReadRc(findfile string) (map[string]string, error) {
 	//	startdir,err := os.Getwd()
 	startdir, err := filepath.Abs(os.Args[1])
+	// this will make sure we also find ../etc
+	if filepath.Base(startdir) != "bin" {
+		startdir = filepath.Join(startdir, "bin")
+	}
 	if err != nil {
 		log.Println("WARNING: Cannot determine current starting directory for rcfile search:", err)
 		return nil, err
