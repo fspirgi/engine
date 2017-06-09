@@ -27,7 +27,7 @@ func FindExecFiles(dir string) (*list.List, error) {
 	var walkTest filepath.WalkFunc = func(path string, info os.FileInfo, err error) error {
 		validcnt := 0
 		for i, cp := range filepath.Base(path) {
-			if i == 0 && unicode.IsUpper(cp) {
+			if i == 0 && unicode.IsUpper(cp) && unicode.IsLetter(cp) {
 				// here we have the stream letter! use it
 				validcnt++
 			} else if i == 1 && unicode.IsDigit(cp) {
@@ -38,12 +38,16 @@ func FindExecFiles(dir string) (*list.List, error) {
 				validcnt++
 			} else if i == 5 && cp != '_' {
 				validcnt++
-			} else if i > 5 {
+			} else {
 				break
 			}
 		}
 		if validcnt == 5 {
 			files.PushBack(path)
+		}
+		if os.IsPermission(err) {
+			fmt.Println("Warning: Skipping", path)
+			return nil
 		}
 		return err
 	}
