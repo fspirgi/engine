@@ -32,6 +32,7 @@ For each part of the filename a corresponding configuration file is searched for
 Configuration entries are in the form key = value, you can use keys as variables and extract their values with $. E.g.
 
 a = b c
+
 d = c $a f # d will be "c b c f"
 
 Parts after # will be treated as comments and empty lines ignored.
