@@ -202,7 +202,7 @@ func PushEnv(conf map[string]string) error {
 	return ret
 }
 
-// Display env (test function, not portable)
+// DisplayEnv displays the environment, currently unused
 func DisplayEnv() {
 	out, err := exec.Command("env").Output()
 	if err != nil {
@@ -211,7 +211,7 @@ func DisplayEnv() {
 	fmt.Printf("%s\n", out)
 }
 
-// Sets up the path
+// SetupPath sets up the path
 func SetupPath(startdir string) error {
 	var tpath []string
 	var ret error

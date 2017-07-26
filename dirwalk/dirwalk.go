@@ -3,13 +3,16 @@ package dirwalk
 import (
 	"container/list"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 )
 
-func Find(dir string, name string) (*list.List, error) {
+// Find is a helper function
+func find(dir string, name string) (*list.List, error) {
 	files := list.New()
 	var walkTest filepath.WalkFunc = func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(filepath.Base(path), name) {
@@ -21,8 +24,8 @@ func Find(dir string, name string) (*list.List, error) {
 	return files, nil
 }
 
-// finds executable files in <dir>. These are in the form [A-Z][0-9]{4}_.*
-func FindExecFiles(dir string) (*list.List, error) {
+// FindExecFiles finds executable files in <dir>. These are in the form [A-Z][0-9]{4}_.*
+func FindExecFiles(dir string, rStream *regexp.Regexp) (*list.List, error) {
 	files := list.New()
 	var walkTest filepath.WalkFunc = func(path string, info os.FileInfo, err error) error {
 		validcnt := 0
@@ -42,11 +45,12 @@ func FindExecFiles(dir string) (*list.List, error) {
 				break
 			}
 		}
-		if validcnt == 5 {
+		if validcnt == 5 && rStream.Match([]byte(path)) {
 			files.PushBack(path)
 		}
+
 		if os.IsPermission(err) {
-			fmt.Println("Warning: Skipping", path)
+			log.Println("Warning: Skipping", path)
 			return nil
 		}
 		return err
@@ -55,7 +59,7 @@ func FindExecFiles(dir string) (*list.List, error) {
 	return files, err
 }
 
-// arranges executable files in a suitable order
+// FindAndOrderExecFiles arranges executable files in a suitable order
 // returns a list of lists of slices
 // each element of the list has to be executed one after the other
 // each slice of the element is executed in parallel
@@ -63,10 +67,10 @@ func FindExecFiles(dir string) (*list.List, error) {
 // go to next element if all processes executed sucessfully, fail otherwise at the end of each top level element
 //
 // update 26. november: make all lists, two parallel flags x and y [A-Z]xy[0-9]{2}
-func FindAndOrderExecFiles(dir string) (*list.List, error) {
+func FindAndOrderExecFiles(dir string, rStream *regexp.Regexp) (*list.List, error) {
 	// resulting list
 	rlist := list.New()
-	files, ok := FindExecFiles(dir)
+	files, ok := FindExecFiles(dir,rStream)
 
 	// last id and last parallel flag
 	var lastId string
@@ -118,6 +122,7 @@ func FindAndOrderExecFiles(dir string) (*list.List, error) {
 	return rlist, ok
 }
 
+// DisplayExecTree displays the execution tree, currently unused function
 func DisplayExecTree(tree *list.List) {
 	var t interface{}
 	for telem := tree.Front(); telem != nil; telem = telem.Next() {
@@ -134,7 +139,7 @@ func DisplayExecTree(tree *list.List) {
 	}
 }
 
-// function that finds all files named x in dir y UP the tree, e.g. /a/b/c/d/etc/x, /a/b/c/etc/x ...
+// FindUp is a function that finds all files named x in dir y UP the tree, e.g. /a/b/c/d/etc/x, /a/b/c/etc/x ...
 // order should be top down afterwards
 // func FindUp(startdir string, finddir string, findfile string) (*list.List,error)
 func FindUp(startdir string, finddir string, findfile string) (*list.List, error) {
@@ -152,15 +157,14 @@ func FindUp(startdir string, finddir string, findfile string) (*list.List, error
 	}
 	// now we look whether we find any files name findfile
 	for elem := dirs.Front(); elem != nil; elem = elem.Next() {
-		if found, ok := Find(elem.Value.(string), findfile); ok == nil {
+		if found, ok := find(elem.Value.(string), findfile); ok == nil {
 			rcs.PushFrontList(found)
 		}
 	}
 	return rcs, err
 }
 
-// FindUpDir(string,string) (*list.List,error)
-// generates just the list of possible dirs, not tested against actual file system
+// FindUpDir generates just the list of possible dirs, not tested against actual file system
 func FindUpDir(startdir string, finddir string) (*list.List, error) {
 	// generate a list of dirs to be scanned
 	startdir, err := filepath.Abs(startdir)

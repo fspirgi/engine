@@ -53,14 +53,14 @@ func executePar(elist *list.List) error {
 	return rerr
 }
 
-// rlist execute
+// ExecuteToplevel rlist execute
 // just execute one after the other...
 // stop on error
 func ExecuteToplevel(rlist *list.List) {
 	log.Println("PROCESSING STARTED")
 	for elist := rlist.Front(); elist != nil; elist = elist.Next() {
 		if err := executePar(elist.Value.(*list.List)); err != nil {
-			panic(fmt.Sprintf("Execution aborted: %s", err))
+			log.Fatalf("Execution aborted: %s", err)
 		}
 	}
 	log.Println("PROCESSING SUCCESSFULLY ENDED")
