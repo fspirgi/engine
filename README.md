@@ -6,7 +6,7 @@ The original script is still heavily used for automating a portifolio accounting
 
 USAGE
 
-engine path
+engine --path path [--stream regexp]
 
 DESCRIPTION
 
@@ -37,3 +37,4 @@ d = c $a f # d will be "c b c f"
 Parts after # will be treated as comments and empty lines ignored.
 
 Every value is pushed into the environment and available to the called programs or scripts.
+
