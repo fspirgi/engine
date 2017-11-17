@@ -6,7 +6,7 @@ The original script is still heavily used for automating a portifolio accounting
 
 ## USAGE
 
-engine --path path [--stream regexp]
+engine [--path path] [--stream regexp]
 
 ## DESCRIPTION
 
