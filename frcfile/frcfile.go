@@ -160,9 +160,9 @@ func FindAndRead(startdir, finddir, findfile string) (map[string]string, error) 
 }
 
 // FindAndReadRc() (map[string]string,error)
-func FindAndReadRc(findfile string) (map[string]string, error) {
+func FindAndReadRc(findfile, path string) (map[string]string, error) {
 	//	startdir,err := os.Getwd()
-	startdir, err := filepath.Abs(os.Args[1])
+	startdir, err := filepath.Abs(path)
 	// this will make sure we also find ../etc
 	if filepath.Base(startdir) != "bin" {
 		startdir = filepath.Join(startdir, "bin")
@@ -176,9 +176,9 @@ func FindAndReadRc(findfile string) (map[string]string, error) {
 }
 
 // finds and reads rcfiles and pushes the values into the environment
-func PopulateEnvWithRc(findfile string) error {
+func PopulateEnvWithRc(findfile, path string) error {
 	var ret error
-	if env, ok := FindAndReadRc(findfile); ok == nil {
+	if env, ok := FindAndReadRc(findfile, path); ok == nil {
 		for key, val := range env {
 			if ok := os.Setenv(key, val); ok != nil {
 				ret = ok
@@ -233,19 +233,19 @@ func SetupPath(startdir string) error {
 }
 
 // func FindAndReadDefault(name string) (map[string]string,error)
-func FindAndReadDefault() (map[string]string, error) {
+func FindAndReadDefault(path string) (map[string]string, error) {
 	findfile := filepath.Base(os.Args[0]) + "rc"
-	return FindAndReadRc(findfile)
+	return FindAndReadRc(findfile, path)
 }
 
 // find general rc files
-func PopulateEnvDefault() error {
+func PopulateEnvDefault(path string) error {
 	findfile := filepath.Base(os.Args[0]) + "rc"
-	return PopulateEnvWithRc(findfile)
+	return PopulateEnvWithRc(findfile, path)
 }
 
 // find all rcfile suitable for a filename
-func PopulateEnvFile(filename string) error {
+func PopulateEnvFile(filename, path string) error {
 	basename := filepath.Base(filename)
 	dirname := filepath.Base(filepath.Dir(filename))
 	var seen string
@@ -258,7 +258,7 @@ func PopulateEnvFile(filename string) error {
 		rcfiles = append(rcfiles, seen+"rc")
 	}
 	for _, file := range rcfiles {
-		if ok := PopulateEnvWithRc(file); ok != nil {
+		if ok := PopulateEnvWithRc(file, path); ok != nil {
 			rerr = ok
 		}
 	}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -20,25 +19,32 @@ import (
 // execution server (to provide remote execution)
 
 func main() {
-
-	var path string
 	var stream string
+	var path string
+
 	flag.StringVar(&path, "path", path, "Start directory")
 	flag.StringVar(&stream, "stream", ".*", "Stream regexp")
 	flag.Parse()
 
 	if path == "" {
-		fmt.Printf("Usage: %s --path <directory>\n", os.Args[0])
-		os.Exit(0)
+		var err error
+		path, err = os.Getwd()
+		if err != nil {
+			// something's very wrong here
+			log.Fatalf("Can not determine current working directory: %s", err)
+		}
+
 	}
+
+	log.Println("Using path: ", path)
 
 	// regex handling for the stream value
 	// default is .* (everything)
 	rStream := regexp.MustCompile(stream)
 
 	frcfile.SetupPath(path)
-	frcfile.PopulateEnvDefault()
-	if err := frcfile.PopulateEnvWithRc("testrc"); err != nil {
+	frcfile.PopulateEnvDefault(path)
+	if err := frcfile.PopulateEnvWithRc("testrc", path); err != nil {
 		log.Fatal(err)
 	}
 
@@ -47,6 +53,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	exectree.ExecuteToplevel(flist)
+	exectree.ExecuteToplevel(flist, path)
 
 }

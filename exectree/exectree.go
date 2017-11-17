@@ -12,11 +12,11 @@ import (
 
 // esl execute (see esl list in dirwalk)
 // esl contains pathnames of files to execute sequentially
-func executeFiles(files *list.List) error {
+func executeFiles(files *list.List, path string) error {
 	var rerr error
 	var status string
 	for filename := files.Front(); filename != nil; filename = filename.Next() {
-		if ok := frcfile.PopulateEnvFile(filename.Value.(string)); ok != nil {
+		if ok := frcfile.PopulateEnvFile(filename.Value.(string), path); ok != nil {
 			rerr = ok
 		}
 		log.Println("START", filename.Value.(string))
@@ -35,13 +35,13 @@ func executeFiles(files *list.List) error {
 
 // elist execute (see elist in dirwalk)
 // elist contains esl element to be executed in parallel
-func executePar(elist *list.List) error {
+func executePar(elist *list.List, path string) error {
 	var rerr error
 	var waiter = new(sync.WaitGroup)
 	for esl := elist.Front(); esl != nil; esl = esl.Next() {
 		waiter.Add(1)
 		go func(tesl *list.List) {
-			err := executeFiles(tesl)
+			err := executeFiles(tesl, path)
 			if err != nil {
 				rerr = err
 			}
@@ -56,10 +56,10 @@ func executePar(elist *list.List) error {
 // ExecuteToplevel rlist execute
 // just execute one after the other...
 // stop on error
-func ExecuteToplevel(rlist *list.List) {
+func ExecuteToplevel(rlist *list.List, path string) {
 	log.Println("PROCESSING STARTED")
 	for elist := rlist.Front(); elist != nil; elist = elist.Next() {
-		if err := executePar(elist.Value.(*list.List)); err != nil {
+		if err := executePar(elist.Value.(*list.List), path); err != nil {
 			log.Fatalf("Execution aborted: %s", err)
 		}
 	}
